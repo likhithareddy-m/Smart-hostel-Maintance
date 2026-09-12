@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AdminLogin.css';
 import { signInAdmin } from '../services/authService.js';
+import { fetchWardenHostels } from '../config/wardens.js';
 
 /**
  * AdminLogin Component
@@ -9,12 +10,22 @@ import { signInAdmin } from '../services/authService.js';
  * 
  * @param {Object} props
  * @param {Function} props.onBack - Callback to return to role selection landing page
+ * @param {Function} props.onLoginSuccess - Callback when admin authentication succeeds
  */
-function AdminLogin({ onBack }) {
+function AdminLogin({ onBack, onLoginSuccess }) {
   // Form input state
   const [formData, setFormData] = useState({
     email: '',
     password: ''
+  });
+
+  // Database-resolved warden & assigned hostel state
+  const [assignedHostelInfo, setAssignedHostelInfo] = useState({
+    isChecking: false,
+    wardenName: '',
+    hostels: [],
+    isAuthorized: false,
+    hasChecked: false
   });
 
   // UI state
@@ -22,6 +33,53 @@ function AdminLogin({ onBack }) {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginStatus, setLoginStatus] = useState(null);
+
+  // Dynamically resolve assigned hostel from database as admin enters their official email
+  useEffect(() => {
+    const trimmedEmail = formData.email.trim();
+    if (!trimmedEmail || !trimmedEmail.includes('@')) {
+      setAssignedHostelInfo({
+        isChecking: false,
+        wardenName: '',
+        hostels: [],
+        isAuthorized: false,
+        hasChecked: false
+      });
+      return;
+    }
+
+    let isMounted = true;
+    const timer = setTimeout(async () => {
+      setAssignedHostelInfo((prev) => ({ ...prev, isChecking: true }));
+      try {
+        const result = await fetchWardenHostels(trimmedEmail);
+        if (isMounted) {
+          setAssignedHostelInfo({
+            isChecking: false,
+            wardenName: result.wardenName,
+            hostels: result.hostels || [],
+            isAuthorized: result.isAuthorizedWarden && result.hostels.length > 0,
+            hasChecked: true
+          });
+        }
+      } catch (err) {
+        if (isMounted) {
+          setAssignedHostelInfo({
+            isChecking: false,
+            wardenName: '',
+            hostels: [],
+            isAuthorized: false,
+            hasChecked: true
+          });
+        }
+      }
+    }, 200);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, [formData.email]);
 
   // Handle Input Changes
   const handleChange = (e) => {
@@ -82,8 +140,11 @@ function AdminLogin({ onBack }) {
       if (result.success) {
         setLoginStatus({
           type: 'success',
-          message: `Admin authentication successful. Welcome, Administrator (${formData.email.trim()}).`
+          message: `Admin authentication successful. Welcome, ${result.user?.name || 'Administrator'}.`
         });
+        if (onLoginSuccess) {
+          onLoginSuccess(result.user);
+        }
       } else {
         setLoginStatus({
           type: 'error',
@@ -221,6 +282,70 @@ function AdminLogin({ onBack }) {
               {errors.password && (
                 <p id="admin-password-error" className="field-error-text" role="alert">{errors.password}</p>
               )}
+            </div>
+
+            {/* Assigned Hostel (Database-Identified & Read-Only) */}
+            <div className="form-group">
+              <div className="label-with-action">
+                <label htmlFor="admin-assigned-hostel" className="form-label">
+                  Assigned Hostel
+                </label>
+                <span className="locked-badge" title="Hostel assignment is strictly enforced by the institute database">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lock-icon-svg" aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <span>Database Assigned</span>
+                </span>
+              </div>
+
+              <div className="assigned-hostel-display" id="admin-assigned-hostel">
+                {assignedHostelInfo.isChecking ? (
+                  <div className="hostel-resolving-state">
+                    <span className="btn-spinner inline-spinner" aria-hidden="true" />
+                    <span>Identifying authorized hostel from database...</span>
+                  </div>
+                ) : assignedHostelInfo.isAuthorized && assignedHostelInfo.hostels.length > 0 ? (
+                  <div className="hostel-resolved-state">
+                    <div className="hostel-primary-row">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="building-icon-svg" aria-hidden="true">
+                        <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+                      </svg>
+                      <span className="hostel-name-text" id="assigned-hostel-name">
+                        {assignedHostelInfo.hostels[0].hostelName}
+                      </span>
+                    </div>
+                    {assignedHostelInfo.hostels.length > 1 && (
+                      <div className="multi-hostel-tag" id="multi-hostel-indicator">
+                        +{assignedHostelInfo.hostels.length - 1} more ({assignedHostelInfo.hostels.slice(1).map((h) => h.hostelName).join(', ')}) &bull; Active hostel selectable on dashboard
+                      </div>
+                    )}
+                    {assignedHostelInfo.wardenName && (
+                      <div className="warden-identity-subtext" id="assigned-warden-name">
+                        Authorized Warden: <strong>{assignedHostelInfo.wardenName}</strong>
+                      </div>
+                    )}
+                  </div>
+                ) : assignedHostelInfo.hasChecked ? (
+                  <div className="hostel-unassigned-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="warning-icon-svg" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <span>No official hostel assignment found for this administrative email.</span>
+                  </div>
+                ) : (
+                  <div className="hostel-placeholder-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lock-dim-icon-svg" aria-hidden="true">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <span>Authorized hostel will be identified upon entering official email</span>
+                  </div>
+                )}
+              </div>
+              <p className="field-hint-text">Hostel access is locked to your verified warden assignment in the database.</p>
             </div>
 
             {/* Submit Button */}
