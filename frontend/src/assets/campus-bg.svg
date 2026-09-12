@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f1f5f9" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#e2e8f0" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="bldgGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="bldgGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e2e8f0" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#cbd5e1" stop-opacity="0.7"/>
+    </linearGradient>
+    <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0f2b48" stroke-width="0.5" stroke-opacity="0.04"/>
+    </pattern>
+  </defs>
+
+  <!-- Base architectural canvas -->
+  <rect width="1920" height="1080" fill="url(#skyGrad)" />
+  <rect width="1920" height="1080" fill="url(#gridPattern)" />
+
+  <!-- Subtle Campus Landscape & Architectural Horizon (Institutional silhouette) -->
+  <g opacity="0.35">
+    <!-- Distant hills/landscape of Jabalpur/Dumna -->
+    <path d="M0,780 Q480,680 960,740 T1920,710 L1920,1080 L0,1080 Z" fill="#cbd5e1" />
+    <path d="M0,820 Q350,750 800,810 T1600,790 Q1760,780 1920,830 L1920,1080 L0,1080 Z" fill="#94a3b8" />
+  </g>
+
+  <!-- Campus Academic & Hostel Complex Silhouette Geometry -->
+  <g opacity="0.25">
+    <!-- Academic Complex Blocks -->
+    <rect x="220" y="660" width="340" height="240" rx="2" fill="url(#bldgGrad1)" />
+    <rect x="250" y="620" width="180" height="40" rx="1" fill="url(#bldgGrad1)" />
+    <!-- Columns / Louvers -->
+    <line x1="260" y1="670" x2="260" y2="880" stroke="#0f2b48" stroke-width="3" stroke-opacity="0.2" />
+    <line x1="300" y1="670" x2="300" y2="880" stroke="#0f2b48" stroke-width="3" stroke-opacity="0.2" />
+    <line x1="340" y1="670" x2="340" y2="880" stroke="#0f2b48" stroke-width="3" stroke-opacity="0.2" />
+    <line x1="380" y1="670" x2="380" y2="880" stroke="#0f2b48" stroke-width="3" stroke-opacity="0.2" />
+    <line x1="420" y1="670" x2="420" y2="880" stroke="#0f2b48" stroke-width="3" stroke-opacity="0.2" />
+    <line x1="460" y1="670" x2="460" y2="880" stroke="#0f2b48" stroke-width="3" stroke-opacity="0.2" />
+    <line x1="500" y1="670" x2="500" y2="880" stroke="#0f2b48" stroke-width="3" stroke-opacity="0.2" />
+
+    <!-- Central Administrative / Core Spine -->
+    <rect x="680" y="580" width="560" height="340" rx="2" fill="url(#bldgGrad2)" />
+    <polygon points="680,580 960,510 1240,580" fill="url(#bldgGrad1)" />
+    
+    <!-- Hostel Blocks Complex -->
+    <rect x="1360" y="640" width="380" height="270" rx="2" fill="url(#bldgGrad1)" />
+    <rect x="1420" y="600" width="220" height="40" fill="url(#bldgGrad1)" />
+  </g>
+
+  <!-- Subtle Trees & Greenery Perimeter -->
+  <g opacity="0.2" fill="#0f2b48">
+    <circle cx="160" cy="880" r="45" />
+    <circle cx="210" cy="890" r="35" />
+    <circle cx="610" cy="870" r="50" />
+    <circle cx="650" cy="880" r="35" />
+    <circle cx="1290" cy="875" r="55" />
+    <circle cx="1340" cy="885" r="40" />
+    <circle cx="1800" cy="880" r="60" />
+  </g>
+
+  <!-- Clean Ground Base -->
+  <rect x="0" y="900" width="1920" height="180" fill="#e2e8f0" opacity="0.6"/>
+</svg>
