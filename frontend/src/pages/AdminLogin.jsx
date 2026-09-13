@@ -19,6 +19,9 @@ function AdminLogin({ onBack, onLoginSuccess }) {
     password: ''
   });
 
+  // Selected authorized hostel ID (for wardens assigned to multiple hostels)
+  const [selectedHostelId, setSelectedHostelId] = useState('');
+
   // Database-resolved warden & assigned hostel state
   const [assignedHostelInfo, setAssignedHostelInfo] = useState({
     isChecking: false,
@@ -45,6 +48,7 @@ function AdminLogin({ onBack, onLoginSuccess }) {
         isAuthorized: false,
         hasChecked: false
       });
+      setSelectedHostelId('');
       return;
     }
 
@@ -54,13 +58,20 @@ function AdminLogin({ onBack, onLoginSuccess }) {
       try {
         const result = await fetchWardenHostels(trimmedEmail);
         if (isMounted) {
+          const hostels = result.hostels || [];
           setAssignedHostelInfo({
             isChecking: false,
             wardenName: result.wardenName,
-            hostels: result.hostels || [],
-            isAuthorized: result.isAuthorizedWarden && result.hostels.length > 0,
+            hostels: hostels,
+            isAuthorized: result.isAuthorizedWarden && hostels.length > 0,
             hasChecked: true
           });
+          if (hostels.length > 0) {
+            setSelectedHostelId((prev) => {
+              const exists = hostels.some((h) => h.hostelId === prev);
+              return exists ? prev : hostels[0].hostelId;
+            });
+          }
         }
       } catch (err) {
         if (isMounted) {
@@ -71,6 +82,7 @@ function AdminLogin({ onBack, onLoginSuccess }) {
             isAuthorized: false,
             hasChecked: true
           });
+          setSelectedHostelId('');
         }
       }
     }, 200);
@@ -131,24 +143,33 @@ function AdminLogin({ onBack, onLoginSuccess }) {
       setIsSubmitting(true);
       setLoginStatus(null);
 
-      const result = await signInAdmin({
-        email: formData.email,
-        password: formData.password
-      });
-
-      setIsSubmitting(false);
-      if (result.success) {
-        setLoginStatus({
-          type: 'success',
-          message: `Admin authentication successful. Welcome, ${result.user?.name || 'Administrator'}.`
+      try {
+        const result = await signInAdmin({
+          email: formData.email,
+          password: formData.password,
+          selectedHostelId: selectedHostelId || undefined
         });
-        if (onLoginSuccess) {
-          onLoginSuccess(result.user);
+
+        setIsSubmitting(false);
+        if (result.success) {
+          setLoginStatus({
+            type: 'success',
+            message: `Admin authentication successful. Welcome, ${result.user?.name || 'Administrator'}.`
+          });
+          if (onLoginSuccess) {
+            onLoginSuccess(result.user);
+          }
+        } else {
+          setLoginStatus({
+            type: 'error',
+            message: result.error || 'Administrative authentication failed.'
+          });
         }
-      } else {
+      } catch (err) {
+        setIsSubmitting(false);
         setLoginStatus({
           type: 'error',
-          message: result.error || 'Administrative authentication failed.'
+          message: err?.message || 'An unexpected error occurred during administrative authentication.'
         });
       }
     }
@@ -307,17 +328,39 @@ function AdminLogin({ onBack, onLoginSuccess }) {
                   </div>
                 ) : assignedHostelInfo.isAuthorized && assignedHostelInfo.hostels.length > 0 ? (
                   <div className="hostel-resolved-state">
-                    <div className="hostel-primary-row">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="building-icon-svg" aria-hidden="true">
-                        <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
-                      </svg>
-                      <span className="hostel-name-text" id="assigned-hostel-name">
-                        {assignedHostelInfo.hostels[0].hostelName}
-                      </span>
-                    </div>
-                    {assignedHostelInfo.hostels.length > 1 && (
-                      <div className="multi-hostel-tag" id="multi-hostel-indicator">
-                        +{assignedHostelInfo.hostels.length - 1} more ({assignedHostelInfo.hostels.slice(1).map((h) => h.hostelName).join(', ')}) &bull; Active hostel selectable on dashboard
+                    {assignedHostelInfo.hostels.length > 1 ? (
+                      <div className="multi-hostel-selection-wrapper">
+                        <div className="hostel-primary-row" style={{ marginBottom: '0.35rem' }}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="building-icon-svg" aria-hidden="true">
+                            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+                          </svg>
+                          <span className="hostel-name-text" style={{ fontSize: '0.85rem' }}>
+                            Select Authorized Hostel ({assignedHostelInfo.hostels.length} authorized):
+                          </span>
+                        </div>
+                        <select
+                          id="admin-hostel-select"
+                          className="form-input"
+                          style={{ padding: '0.45rem 0.65rem', fontSize: '0.9rem', backgroundColor: '#ffffff', cursor: 'pointer' }}
+                          value={selectedHostelId}
+                          onChange={(e) => setSelectedHostelId(e.target.value)}
+                          aria-label="Select authorized hostel"
+                        >
+                          {assignedHostelInfo.hostels.map((h) => (
+                            <option key={h.hostelId} value={h.hostelId}>
+                              {h.hostelName} ({h.hostelCode || 'Authorized'})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : (
+                      <div className="hostel-primary-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="building-icon-svg" aria-hidden="true">
+                          <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+                        </svg>
+                        <span className="hostel-name-text" id="assigned-hostel-name">
+                          {assignedHostelInfo.hostels[0].hostelName}
+                        </span>
                       </div>
                     )}
                     {assignedHostelInfo.wardenName && (

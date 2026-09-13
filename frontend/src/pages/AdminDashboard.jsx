@@ -20,9 +20,18 @@ function AdminDashboard({ admin, onLogout }) {
     admin?.activeHostelId || (authorizedHostels[0] ? authorizedHostels[0].hostelId : '')
   );
 
+  // Sync activeHostelId when admin prop changes
+  useEffect(() => {
+    if (admin?.activeHostelId) {
+      setActiveHostelId(admin.activeHostelId);
+    } else if (authorizedHostels.length > 0 && !activeHostelId) {
+      setActiveHostelId(authorizedHostels[0].hostelId);
+    }
+  }, [admin?.activeHostelId, authorizedHostels]);
+
   // Security check: ensure activeHostelId is strictly one of the authorized hostels
   useEffect(() => {
-    if (authorizedHostels.length > 0) {
+    if (authorizedHostels.length > 0 && activeHostelId) {
       const isAuthorized = authorizedHostels.some((h) => h.hostelId === activeHostelId);
       if (!isAuthorized) {
         // Fallback strictly to first authorized hostel ID from database relationship
@@ -30,6 +39,35 @@ function AdminDashboard({ admin, onLogout }) {
       }
     }
   }, [activeHostelId, authorizedHostels]);
+
+  // Handle graceful loading / missing admin authorization
+  if (!admin || authorizedHostels.length === 0) {
+    return (
+      <div className="admin-dashboard-container">
+        <div className="campus-backdrop" aria-hidden="true" />
+        <div className="campus-backdrop-overlay" aria-hidden="true" />
+        <div className="dashboard-content-wrapper" style={{ minHeight: '60vh', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="auth-card" style={{ maxWidth: '480px', textAlign: 'center' }}>
+            <h3 className="auth-title" style={{ marginBottom: '0.75rem' }}>
+              {!admin ? 'Administrative Session Not Found' : 'No Authorized Hostel Assigned'}
+            </h3>
+            <p className="auth-subtitle" style={{ marginBottom: '1.5rem', color: !admin ? 'var(--text-muted)' : 'var(--color-danger)' }}>
+              {!admin 
+                ? 'Your administrative login session could not be verified. Please sign in again.'
+                : 'Your administrator account does not have authorized hostel allocations registered in the database. Please contact the Institute IT Cell.'}
+            </p>
+            <button
+              type="button"
+              className="auth-submit-btn"
+              onClick={onLogout}
+            >
+              Return to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const activeHostel = authorizedHostels.find((h) => h.hostelId === activeHostelId) || authorizedHostels[0] || {
     hostelId: 'unassigned-uuid',
@@ -50,6 +88,14 @@ function AdminDashboard({ admin, onLogout }) {
     const isPermitted = authorizedHostels.some((h) => h.hostelId === newHostelId);
     if (isPermitted) {
       setActiveHostelId(newHostelId);
+      try {
+        const rawSession = localStorage.getItem('iiitdmj_admin_session');
+        if (rawSession) {
+          const parsed = JSON.parse(rawSession);
+          parsed.activeHostelId = newHostelId;
+          localStorage.setItem('iiitdmj_admin_session', JSON.stringify(parsed));
+        }
+      } catch (e) {}
     } else {
       console.warn('Security alert: Unauthorized hostel selection attempt blocked.');
     }
