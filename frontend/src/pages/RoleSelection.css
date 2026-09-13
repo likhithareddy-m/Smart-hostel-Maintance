@@ -1,0 +1,345 @@
+/* ==========================================================================
+   RoleSelection Page Stylesheet
+   IIITDM Jabalpur - Smart Hostel Portal
+   ========================================================================== */
+
+.portal-page-container {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem 1.5rem;
+  background-color: transparent;
+  overflow-x: hidden;
+}
+
+/* Campus Architectural Backdrop */
+.campus-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../assets/campus-bg.jpg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.campus-backdrop-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 35%, rgba(248, 250, 252, 0.68) 0%, rgba(241, 245, 249, 0.82) 75%, rgba(226, 232, 240, 0.92) 100%);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Main Content Wrapper */
+.portal-content-wrapper {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 860px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Institutional Branding Header */
+.institutional-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.institution-emblem-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.9rem;
+  background-color: var(--navy-50);
+  border: 1px solid var(--navy-100);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.75rem;
+}
+
+.emblem-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--navy-800);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.institute-name {
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--navy-950);
+  margin-bottom: 0.25rem;
+}
+
+.portal-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--navy-700);
+  margin-bottom: 0.2rem;
+}
+
+.portal-subtitle {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.header-divider {
+  width: 70px;
+  height: 3px;
+  background-color: var(--navy-600);
+  border-radius: 2px;
+  margin-top: 1.25rem;
+}
+
+/* Role Selection Section */
+.role-selection-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.selection-prompt-container {
+  text-align: center;
+}
+
+.selection-prompt {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--navy-900);
+  margin-bottom: 0.25rem;
+}
+
+.selection-instruction {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Role Cards Grid (Balanced Layout) */
+.role-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.role-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius-lg);
+  padding: 1.85rem;
+  box-shadow: 0 10px 25px -3px rgba(15, 43, 72, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  text-align: left;
+}
+
+.role-card:hover {
+  border-color: var(--navy-600);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.role-card:focus-visible {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.2);
+}
+
+.role-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.role-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.student-icon-box {
+  background-color: var(--navy-50);
+  border: 1px solid var(--navy-100);
+  color: var(--navy-700);
+}
+
+.admin-icon-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.role-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.role-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.role-primary-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--navy-900);
+  letter-spacing: 0.02em;
+}
+
+.role-secondary-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--navy-600);
+}
+
+.role-description {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.role-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--navy-700);
+  font-size: 0.925rem;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.action-arrow {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.role-card:hover .role-card-action {
+  color: var(--navy-600);
+}
+
+.role-card:hover .action-arrow {
+  transform: translateX(4px);
+}
+
+/* Institutional Support Notice Box */
+.institutional-notice-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-left: 4px solid var(--navy-600);
+  border-radius: var(--radius-md);
+  padding: 0.95rem 1.15rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-xs);
+}
+
+.notice-icon-wrapper {
+  color: var(--navy-600);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notice-icon-wrapper svg {
+  width: 18px;
+  height: 18px;
+}
+
+.notice-text strong {
+  color: var(--navy-900);
+}
+
+.notice-contact {
+  font-weight: 600;
+  color: var(--navy-700);
+}
+
+/* Institutional Footer */
+.institutional-footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.775rem;
+  line-height: 1.5;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+  width: 100%;
+}
+
+.footer-institute-name {
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.15rem;
+}
+
+.footer-address {
+  font-size: 0.75rem;
+  margin-bottom: 0.15rem;
+}
+
+.footer-location {
+  font-size: 0.75rem;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 680px) {
+  .portal-page-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .institute-name {
+    font-size: 1.45rem;
+  }
+
+  .portal-title {
+    font-size: 1.15rem;
+  }
+
+  .role-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .role-card {
+    padding: 1.35rem;
+  }
+}
